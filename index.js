@@ -11,8 +11,21 @@ const io = require('socket.io')(server, {
     cookie: false
 });
 
+var obsticlesRealLocation = [],
+
 var state = {
-    something: 10,
+    space :[1000, 1000],
+    shipLoc :[0, 0],
+    fuel = 100,
+    health = 100,
+    enemy =[], // {}
+    obsticles =[], //{}
+    bullets = 100,
+    broken =[],
+    tasks =["Patch Leak", "Repair Wires", "Tighten Screw", "Fix Hole"],
+    rooms =["Food", "Fuel", "Bullets", "Engine", "Control"],
+    roles =["Captain", "Navigator", "Fighter", "Engineer"],
+    players = 0
 }
 
 io.on('connection', (socket, listener) => {
@@ -23,5 +36,19 @@ io.on('connection', (socket, listener) => {
     })
 })
 
+function init() {
+    for(var i = 0; i < 100; i++){
+        var randX = Math.round(Math.random() * 20000) - 10000
+        var randY = Math.round(Math.random() * 20000) - 10000
+
+        state.obsticles.push({
+            x = randX,
+            y = randY,
+            id = i
+        })
+    }
+}
+
 console.log('Server listening on port 3000')
+init();
 server.listen(port);
