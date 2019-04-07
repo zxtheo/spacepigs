@@ -12,7 +12,7 @@ const io = require('socket.io')(server, {
 });
 
 var obsticlesRealLocation = []
-players: 0
+var player = 0
 
 
 var state = {
@@ -21,7 +21,7 @@ var state = {
     health : 100,
     enemy :[], // {}
     obsticles :[], //{}
-    bullets : 100,
+    bullets : [], //{}
     broken :[],
     tasks :["Patch Leak", "Repair Wires", "Tighten Screw", "Fix Hole"],
     rooms :["Food", "Fuel", "Bullets", "Engine", "Control"],
@@ -36,6 +36,7 @@ io.on('connection', (socket, listener) => {
         socket.emit('state', state)
     })
     socket.on('shipLocation', (event) => {
+        state = {}
         state = event
         console.log("New state received")
         console.log(state)
@@ -43,12 +44,42 @@ io.on('connection', (socket, listener) => {
         socket.emit('state', state)
         socket.broadcast.emit('state', state)
     })
-    
+    socket.on('shotFired', (shot) =>{
+        shotFired(shot)
+        socket.emit('state', state)
+        socket.broadcast.emit('state', state)
+    })
+    socket.on("reset", ()=>{
+        state = {
+            shipLoc: { x: 0, y: 0 },
+            fuel: 100,
+            health: 100,
+            enemy: [], // {}
+            obsticles: [], //{}
+            bullets: [], //{}
+            broken: [],
+            tasks: ["Patch Leak", "Repair Wires", "Tighten Screw", "Fix Hole"],
+            rooms: ["Food", "Fuel", "Bullets", "Engine", "Control"],
+            roles: ["Captain", "Navigator", "Fighter", "Engineer"],
+            }
+        init()
+        socket.broadcast.emit("state", state)
+        socket.emit("state", state)
+})
 })
 
+function shotFired(shot){
+    for(var i = 0; i <state.obsticles.length; i++){
+        if(state.obsticles[i].id == shot){
+            // state.obsticles.splice(i, 1)
+        }
+    }
+    
+}
 
 function init() {
     console.log("init")
+    obsticlesRealLocation = []
     for(var i = 0; i < 200; i++){
         var randX = Math.round(Math.random() * 5000) - 2500
         var randY = Math.round(Math.random() * 5000) - 2500
@@ -63,15 +94,17 @@ function init() {
 }
 
 function nearObsticles(){
+    state.obsticles = []
     for(var i = 0; i < obsticlesRealLocation.length; i++){
         //900x1300 = 450x650
         // console.log("object")
         // console.log(obsticlesRealLocation[i].x + " " + state.shipLoc.x)
-
+        
+       
         if (obsticlesRealLocation[i].x >= state.shipLoc.x - 450 && obsticlesRealLocation[i].x <= state.shipLoc.x + 450){
             if (obsticlesRealLocation[i].y >= state.shipLoc.y - 650 && obsticlesRealLocation[i].y <= state.shipLoc.y + 650)
             {
-                console.log('obsticle added')
+                // console.log('obsticle added')
                 var newx, newy, vx, vy
 
                 vx = obsticlesRealLocation[i].x - state.shipLoc.x
@@ -89,4 +122,4 @@ function nearObsticles(){
 
 console.log('Server listening on port 3000')
 init();
-server.listen(port);
+server.listen(port)
