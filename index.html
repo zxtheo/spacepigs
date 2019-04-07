@@ -10,17 +10,15 @@
 <body>
     <script>
         var state = {}
-            const socket = io('http://localhost:3000', {
+            const socket = io('https://space-pigs.herokuapp.com', {
                 path: '/test'
             });
             socket.on('connect', () => {
                     console.log("I have connected to the server"); // false
                 });
             socket.on('state', (newState) => {
-                state = newState
                 console.log("New state")
             })
-            socket.emit('shipLoc', '')
             socket.emit('state', '')
     </script>
 </body>

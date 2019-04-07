@@ -12,9 +12,10 @@ const io = require('socket.io')(server, {
 });
 
 var obsticlesRealLocation = []
+players: 0
+
 
 var state = {
-    space :[1000, 1000],
     shipLoc :{x:0, y:0},
     fuel : 100,
     health : 100,
@@ -25,7 +26,7 @@ var state = {
     tasks :["Patch Leak", "Repair Wires", "Tighten Screw", "Fix Hole"],
     rooms :["Food", "Fuel", "Bullets", "Engine", "Control"],
     roles :["Captain", "Navigator", "Fighter", "Engineer"],
-    players : 0
+    
 }
 
 io.on('connection', (socket, listener) => {
@@ -38,6 +39,8 @@ io.on('connection', (socket, listener) => {
         state = event
         console.log("New state received")
         console.log(state)
+        nearObsticles()
+        socket.emit('state', state)
         socket.broadcast.emit('state', state)
     })
     
@@ -47,8 +50,8 @@ io.on('connection', (socket, listener) => {
 function init() {
     console.log("init")
     for(var i = 0; i < 200; i++){
-        var randX = Math.round(Math.random() * 10000) - 5000
-        var randY = Math.round(Math.random() * 10000) - 5000
+        var randX = Math.round(Math.random() * 5000) - 2500
+        var randY = Math.round(Math.random() * 5000) - 2500
 
         obsticlesRealLocation.push({
             x:randX,
